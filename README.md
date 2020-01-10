@@ -14,8 +14,8 @@ Bellow is a list of the required packages to run the script in a linux(UBUNTU 18
 You can run the following commands in the Terminal to install the packages.
 Well as starting point if you do not have pip, here you go!
 # PIP (package installer) & FFmpeg from the terminal.
-sudo apt update /n
-sudo apt install python3-pip ffmpeg /n
+sudo apt update\
+sudo apt install python3-pip ffmpeg\
 For more information on the process use Google ofcourse!! :) well here's a link:
 https://linuxize.com/post/how-to-install-pip-on-ubuntu-18.04/
 # Youtube-dl
