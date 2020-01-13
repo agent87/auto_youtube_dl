@@ -6,8 +6,9 @@ import time
 import youtube_dl
 import os
 import sys
+import getpass
 
-bookmark_dir = '/home/sangman/.config/google-chrome/Default/Bookmarks'#.format(os.system('whoami'))
+bookmark_dir = '/home/{}/.config/google-chrome/Default/Bookmarks'.format(getpass.getuser())
 songs_bk_name = 'Youtube Songs'
 docu_bk_name = 'Youtube Documentary Videos'
 
@@ -100,8 +101,10 @@ def songs_dl(bk_rdata):
             pass
     return song_dl_status
 
-
+#Youtube Video Downloader
 def docu_dl(bk_rdata):
+    dl_count = 0
+    docu_dl_status = False
     for i in range(len(bk_rdata['roots']['bookmark_bar']['children'])):
         if bk_rdata['roots']['bookmark_bar']['children'][i]['name'] == docu_bk_name:
             for d in range(len(bk_rdata['roots']['bookmark_bar']['children'][i]['children'])):
@@ -115,13 +118,23 @@ def docu_dl(bk_rdata):
                     #'progress_hooks': [progress_logger]
                     }
                 if downloaded(bk_rdata['roots']['bookmark_bar']['children'][i]['children'][d]['url'], 'docu') == True:
-                    print(bk_rdata['roots']['bookmark_bar']['children'][i]['children'][d]['name'],' is Already Downloaded!')
+                    dl_count = dl_count + 1
+                    pass
                 else:
-                    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                        ydl.download([bk_rdata['roots']['bookmark_bar']['children'][i]['children'][d]['url']])
-                        #if progress_log['status'] == 'finished':
-                        #print('Done downloading {}, \n now converting ...'.format(bk_rdata['roots']['bookmark_bar']['children'][i]['children'][d]['name']))
-                     
+                    try:
+                        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                            print('Downloading {} of {} '.format(d,len(bk_rdata['roots']['bookmark_bar']['children'][i]['children'])))
+                            ydl.download([bk_rdata['roots']['bookmark_bar']['children'][i]['children'][d]['url']])
+                            dl_count = dl_count + 1
+                    except youtube_dl.utils.DownloadError:
+                        print(error_msg)
+                        pass
+                if dl_count == len(bk_rdata['roots']['bookmark_bar']['children'][i]['children']):
+                    docu_dl_status = True     
+            break
+        else:
+            pass
+    return docu_dl_status
 
 
 
@@ -134,8 +147,8 @@ def engine_start():
     elif bk_rdata['checksum'] is not list(open('checksum','r'))[0]:
         read_checksum.close()
         songs_dl_state = songs_dl(bk_rdata)
-        #docu_dl(bk_rdata)
-        if songs_dl_state is True:
+        docu_dl_state = docu_dl(bk_rdata)
+        if songs_dl_state == True and docu_dl_state == True:
             open('checksum', 'w').write(bk_rdata['checksum'])
         
         
